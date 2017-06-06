@@ -1,0 +1,197 @@
+<html>
+
+<body style="width:100%; margin:0px" onkeydown="moveBars(event)">
+    <canvas id="leftBar"></canvas>
+    <canvas id="myCanvas" style="text-align:center;display:inline;"></canvas>
+    <canvas id="rightBar"></canvas>
+    <style type="text/css">
+    #myCanvas {
+        /*position: inline;*/
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 90%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #leftBar {
+        /*position: inline;*/
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 4.5%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #rightBar {
+        /*position: inline;*/
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 4.5%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script>
+    var bars = [{
+        posTop: 0
+    }, {
+        posTop: 0
+    }]
+
+    var c = document.getElementById("leftBar");
+    var ctx = c.getContext("2d");
+    ctx.fillRect(c.width - 100, bars[0].posTop, 100, 50);
+
+    var c = document.getElementById("rightBar");
+    var ctx = c.getContext("2d");
+    ctx.fillRect(0, bars[1].posTop, 100, 50);
+
+    function moveBars(e) {
+        console.log(e);
+        if (e.key == "ArrowDown") {
+            var c = document.getElementById("leftBar");
+            var ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, c.width, c.height);
+            bars[0].posTop += 15;
+            ctx.fillRect(c.width - 100, bars[0].posTop, 100, 50);
+            console.log('Down');
+        } else if (e.key == "ArrowUp") {
+            var c = document.getElementById("leftBar");
+            var ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, c.width, c.height);
+            bars[0].posTop -= 15;
+            ctx.fillRect(c.width - 100, bars[0].posTop, 100, 50);
+            console.log('Up');
+        } else if (e.key == "z") {
+            var c = document.getElementById("rightBar");
+            var ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, c.width, c.height);
+            bars[1].posTop += 15;
+            ctx.fillRect(0, bars[1].posTop, 100, 50);
+            // ctx.fillRect(c.width - 100, bars[0].posTop, 100, 50);
+            console.log('Down');
+        } else if (e.key == "x") {
+            var c = document.getElementById("rightBar");
+            var ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, c.width, c.height);
+            bars[1].posTop -= 15;
+            ctx.fillRect(0, bars[1].posTop, 100, 50);
+            // ctx.fillRect(c.width - 100, bars[0].posTop, 100, 50);
+            console.log('Up');
+        }
+    }
+
+    var c = document.getElementById("myCanvas");
+    c.width = c.clientWidth;
+    c.height = c.clientHeight;
+
+    var balls = [{
+            velocity: [1, 1],
+            start_point: [0, c.height],
+            radius: 10,
+            release: 0,
+            color: '#00FF00'
+        },
+        {
+            velocity: [1, -0.5],
+            start_point: [0, 0],
+            radius: 10,
+            release: 0,
+            color: "#c82124"
+        },
+        // {
+        //     velocity: [3, -2],
+        //     start_point: [100, 0],
+        //     radius: 10,
+        //     release: 0,
+        //     color: "#3370d4"
+        // },
+        // {
+        //     velocity: [-2, -2],
+        //     start_point: [400, 0],
+        //     radius: 10,
+        //     release: 0,
+        //     color: "#FF0000"
+        // },
+        // {
+        //     velocity: [-2, -3],
+        //     start_point: [200, 200],
+        //     radius: 10,
+        //     release: 0,
+        //     color: '#FFFF00'
+        // },
+        // {
+        //     velocity: [-4, -1],
+        //     start_point: [800, 0],
+        //     radius: 10,
+        //     release: 0,
+        //     color: '#F0F0F0'
+        // }
+        ],
+        common = {
+            gravity: 0.00,
+            friction: 0.000,
+            elasticity: 1,
+            acc: 0
+        };
+
+
+    function findDistance(a_ball, b_ball) {
+        return Math.sqrt(Math.pow(a_ball.start_point[0] - b_ball.start_point[0], 2) + Math.pow(a_ball.start_point[1] - b_ball.start_point[1], 2));
+    }
+
+    setInterval(function() {
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+        for (var i = 0; i < balls.length; i++) {
+            var ball = balls[i];
+            if ((ball.release == 0) || (parseInt(ball.start_point[1]) != parseInt(c.height)) || true) {
+                ctx.fillStyle = ball.color;
+                // console.log(ball.color);
+
+                ctx.beginPath();
+                ctx.arc(ball.start_point[0] + ball.radius, ball.start_point[1] - ball.radius, ball.radius, 0, 2 * Math.PI);
+                ctx.closePath();
+                // console.log(ball.start_point[0] + ball.radius, ball.start_point[1] - ball.radius);
+                ctx.fill();
+                ball.start_point[0] += ball.velocity[0];
+                ball.start_point[1] -= ball.velocity[1];
+                ball.velocity[1] -= common.gravity;
+                ball.velocity[0] -= common.friction;
+                ball.release = 1;
+            }
+            if (ball.start_point[1] >= c.height || ball.start_point[1] <= 0) {
+                ball.velocity[1] = common.elasticity * -1 * ball.velocity[1];
+                ball.release = 0;
+            }
+            if (ball.start_point[0] + ball.radius >= c.width || ball.start_point[0] <= 0) {
+                ball.velocity[0] = common.elasticity * -1 * ball.velocity[0];
+                ball.release = 0;
+            }
+        }
+        for (var i = 0; i < balls.length; i++) {
+            var a_ball = balls[i];
+            for (var j = i + 1; j < balls.length; j++) {
+                var b_ball = balls[j];
+                if (findDistance(a_ball, b_ball) <= (a_ball.radius + b_ball.radius)) {
+                    var temp = JSON.parse(JSON.stringify(a_ball.velocity));
+                    a_ball.velocity = JSON.parse(JSON.stringify(b_ball.velocity));
+                    b_ball.velocity = temp;
+                }
+            }
+        }
+    }, 3);
+    </script>
+</body>
+
+</html>
